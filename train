@@ -1,0 +1,37 @@
+#!/bin/bash
+
+TRANSLATION=$1
+REFERENCE=$2
+LANGUAGE=$3
+NAME=$4
+SCORES=$5
+
+UDPIPE_DIR=/home/marecek/work/tools/udpipe-1.0.0-bin
+
+mkdir -p $NAME
+
+# compute chrF
+scripts/chrF.py --ref $REFERENCE --hyp $TRANSLATION --beta 3 --ngram 6 > $NAME/scores.chrF
+
+# tag and parse the data
+cat $REFERENCE | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizontal \
+    $UDPIPE_DIR/models/$LANGUAGE-ud-1.2-160523.udpipe > $NAME/reference.conllu
+cat $TRANSLATION | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizontal \
+    $UDPIPE_DIR/models/$LANGUAGE-ud-1.2-160523.udpipe > $NAME/translation.conllu
+
+# align the translation and the reference
+scripts/monolingual_alignment.pl $NAME/reference.conllu $NAME/translation.conllu > $NAME/alignment
+
+# generate features
+scripts/features.pl $NAME/reference.conllu $NAME/translation.conllu $NAME/alignment > $NAME/scores.ud
+
+# scikit training and crossvalidation
+paste $NAME/scores.chrF $NAME/scores.ud > training.tsv
+source env/bin/activate
+scripts/scikit-train.py --input_file=training.tsv --target_file=$SCORES \
+    --model_type=linear_regression --model_params="" --save_model $NAME/model
+
+
+
+
+

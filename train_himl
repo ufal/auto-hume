@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mkdir -p models
+mkdir -p models/himl
+for l in cs de pl ro; do
+    train data/himl2015/himl2015.en-$l.trans data/himl2015/himl2015.en-$l.ref $l \
+      models/himl/$l data/himl2015/himl2015.en-$l.ucca
+done
+
