@@ -1,0 +1,14 @@
+#/bin/bash
+
+TRANSLATIONS_DIR=/home/marecek/work/semantic_mt_metric/data/wmt2015/wmt15-metrics-task/txt/system-outputs/newstest2015
+REFERENCES_DIR=/home/marecek/work/semantic_mt_metric/data/wmt2015/wmt15-metrics-task/txt/references
+
+mkdir -p predictions 
+mkdir -p predictions/wmt15
+for l in cs de; do
+     for s in $TRANSLATIONS_DIR/en-$l/*; do
+        name=$(echo $s | sed 's/^.*newstest2015\.//;' | sed 's/\.en-..//;')
+        predict $s $REFERENCES_DIR/newstest2015-en$l-ref.$l $l predictions/wmt15/$l/$name models/himl/$l/model 
+    done
+done
+

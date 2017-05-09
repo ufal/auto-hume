@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mkdir -p predictions 
+mkdir -p predictions/himl_v2
+for l in cs de pl ro; do
+    predict data/himl_v2/en-$l.trans data/himl_v2/en-$l.ref $l predictions/himl_v2/$l/all models/himl/$l/model 
+done
+
