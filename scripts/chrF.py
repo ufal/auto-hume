@@ -92,6 +92,7 @@ def f1(correct, total_hyp, total_ref, max_length, beta=3, smooth=0):
 
     precision = 0
     recall = 0
+    f_measure = 0
 
     for i in range(max_length):
       if total_hyp[i] + smooth and total_ref[i] + smooth:
@@ -100,8 +101,10 @@ def f1(correct, total_hyp, total_ref, max_length, beta=3, smooth=0):
 
     precision /= max_length
     recall /= max_length
+    if precision != 0 and recall != 0:
+        f_measure = (1 + beta**2) * (precision*recall) / ((beta**2 * precision) + recall)
 
-    return (1 + beta**2) * (precision*recall) / ((beta**2 * precision) + recall), precision, recall
+    return f_measure, precision, recall
 
 def main(args):
 

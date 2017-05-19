@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mkdir -p autohume_predictions
+mkdir -p autohume_predictions/himl
+for l in cs de pl ro; do
+    autohume data/himl2015/himl2015.en-$l.trans data/himl2015/himl2015.en-$l.ref $l autohume_predictions/himl/$l
+    paste autohume_predictions/himl/$l/autohume.score data/himl2015/himl2015.en-$l.ucca | scripts/pearson.pl
+done
+

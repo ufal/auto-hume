@@ -6,6 +6,8 @@ binmode STDOUT, ":utf8";
 use strict;
 use warnings;
 use Getopt::Long;
+use List::Uniq;
+
 
 my $REF_TREES_FILENAME = undef;
 my $ALIGNMENT_FILENAME = undef;
@@ -74,7 +76,6 @@ while(<TRANSLATION>) {
 print STDERR "Translation sentences: $sent_num\n";
 
 foreach my $s (0 .. $sent_num - 1) {
-    print STDERR "$#{$ref_words[$s]} ";
     foreach my $w (0 .. $#{$ref_words[$s]}) {
         my @tgt_w;
         my @ref_w;
@@ -84,12 +85,13 @@ foreach my $s (0 .. $sent_num - 1) {
                 push @tgt_w, $alignment[$s][$d];
             }
         }
-        my @ref_subtree = map{$ref_words[$s][$_]} sort @ref_w;
-        my @tgt_subtree = map{$tgt_words[$s][$_]} sort @tgt_w;
+        my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
+        my @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
+        my $weight = scalar(@ref_subtree) + scalar(@tgt_subtree);
+        print "$s\t$weight\t";
         print join(" ", @ref_subtree);
         print "\t";
         print join(" ", @tgt_subtree);
         print "\n";
     }
-    print "\n";
 }

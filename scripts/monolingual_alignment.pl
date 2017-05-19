@@ -59,7 +59,6 @@ foreach my $s (0 .. $#form) {
                 $links_to_do--;
                 $used[0][$w0] = 1;
                 $used[1][$w1] = 1;
-                print STDERR "$form[$s][0][$w0] $form[$s][1][$w1] $candidate_scores{$c}\n";
             }
             last if !$links_to_do;
         }

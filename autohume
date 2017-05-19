@@ -4,16 +4,12 @@ TRANSLATION=$1
 REFERENCE=$2
 LANGUAGE=$3
 NAME=$4
-SCORES=$5
 
 UDPIPE_DIR=/home/marecek/work/tools/udpipe-1.0.0-bin
 
 mkdir -p $NAME
 
-# compute chrF
-scripts/chrF.py --ref $REFERENCE --hyp $TRANSLATION --beta 3 --ngram 6 > $NAME/scores.chrF
-
-# tag and parse the data
+# tag and parse the reference
 cat $REFERENCE | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizontal \
     $UDPIPE_DIR/models/$LANGUAGE-ud-1.2-160523.udpipe > $NAME/reference.conllu
 cat $TRANSLATION | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizontal \
@@ -22,12 +18,14 @@ cat $TRANSLATION | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizont
 # align the translation and the reference
 scripts/monolingual_alignment.pl $NAME/reference.conllu $NAME/translation.conllu > $NAME/alignment
 
-# generate features
-scripts/features.pl $NAME/reference.conllu $NAME/translation.conllu $NAME/alignment > $NAME/scores.ud
+# generate aligned subtrees
+scripts/get_parallel_subtrees.pl --ref-trees $NAME/reference.conllu --alignment $NAME/alignment --translation $TRANSLATION > $NAME/parallel_subtrees
 
-# scikit training and crossvalidation
-paste $NAME/scores.chrF $NAME/scores.ud > training.tsv
-source env/bin/activate
-scripts/scikit-train.py --input_file=training.tsv --target_file=$SCORES \
-    --model_type=linear_regression --model_params="" --save_model $NAME/model
+cat $NAME/parallel_subtrees | cut -f3 > $NAME/ref_subtrees
+cat $NAME/parallel_subtrees | cut -f4 > $NAME/trans_subtrees
+scripts/chrF.py --ref $NAME/ref_subtrees --hyp $NAME/trans_subtrees --beta 3 --ngram 6 > $NAME/subtrees.chrF 
+
+paste $NAME/parallel_subtrees $NAME/subtrees.chrF | scripts/compute_autohume.pl > $NAME/autohume.score
+
+
 
