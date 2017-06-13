@@ -1,19 +1,18 @@
 #!/bin/bash
 
+set -o xtrace
+
 TRANSLATION=$1
 REFERENCE=$2
 LANGUAGE=$3
 NAME=$4
 
-UDPIPE_DIR=/home/marecek/work/tools/udpipe-1.0.0-bin
-
-mkdir -p $NAME
+UDPIPE_DIR=~rosa/himl/autohume/udpipe
+UDPIPE="$UDPIPE_DIR/udpipe --tag --parse --input=horizontal $UDPIPE_DIR/models/$LANGUAGE.udpipe"
 
 # tag and parse the reference
-cat $REFERENCE | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizontal \
-    $UDPIPE_DIR/models/$LANGUAGE-ud-1.2-160523.udpipe > $NAME/reference.conllu
-cat $TRANSLATION | $UDPIPE_DIR/bin-linux64/udpipe --tag --parse --input=horizontal \
-    $UDPIPE_DIR/models/$LANGUAGE-ud-1.2-160523.udpipe > $NAME/translation.conllu
+cat $REFERENCE   | $UDPIPE | grep -v '^#' > $NAME/reference.conllu
+cat $TRANSLATION | $UDPIPE | grep -v '^#' > $NAME/translation.conllu
 
 # align the translation and the reference
 scripts/monolingual_alignment.pl $NAME/reference.conllu $NAME/translation.conllu > $NAME/alignment

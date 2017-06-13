@@ -1,9 +1,17 @@
 #!/bin/bash
 
-mkdir -p autohume_predictions
-mkdir -p autohume_predictions/himl
+set -o xtrace
+
 for l in cs de pl ro; do
-    autohume data/himl2015/himl2015.en-$l.trans data/himl2015/himl2015.en-$l.ref $l autohume_predictions/himl/$l
-    paste autohume_predictions/himl/$l/autohume.score data/himl2015/himl2015.en-$l.ucca | scripts/pearson.pl
+    echo Language: $l
+    DIR=autohume_predictions/himl15/$l
+    mkdir -p $DIR
+    sys=data/himl2015/himl2015.en-$l.trans
+    ref=data/himl2015/himl2015.en-$l.ref
+    autohume $sys $ref $l $DIR
+    scripts/chrF.py --hyp $sys --ref $ref --beta 3 --ngram 6 > $DIR/sentences.chrF 
+    ucca=data/himl2015/himl2015.en-$l.ucca
+    echo Autohume: `paste $DIR/autohume.score $ucca | scripts/pearson.pl`
+    echo SentCHRF: `paste $DIR/sentences.chrF $ucca | scripts/pearson.pl`
 done
 
