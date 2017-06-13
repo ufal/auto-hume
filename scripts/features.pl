@@ -22,7 +22,7 @@ foreach my $f (0, 1) {
     my $sent_count = 0;
     while (<CONLL>) {
         chomp;
-        if ($_ =~ /^\d/) {
+        if ($_ =~ /^\d+\t/) {
             my @items = split /\t/, $_;
             $form[$sent_count][$f][$items[0]-1] = $items[1];
             $lemma[$sent_count][$f][$items[0]-1] = $items[2] eq '_' ? lc($items[1]) : $items[2];
@@ -36,7 +36,7 @@ foreach my $f (0, 1) {
                 }
             }
         }
-        else {
+        elsif ($_ =~ /^\s*$/) {
             $sent_count++;
         }
     }
@@ -82,7 +82,7 @@ foreach my $s (0 .. $#form) {
             #    $formeme = 'n:';
             #}
             $formeme[$s][$f][$w] = ($formeme || undef);
-            print STDERR "$formeme " if $formeme;
+            #print STDERR "$formeme " if $formeme;
         }
     }
 }

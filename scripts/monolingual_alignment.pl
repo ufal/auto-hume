@@ -19,12 +19,12 @@ foreach my $f (0, 1) {
     my $sent_count = 0;
     while (<CONLL>) {
         chomp;
-        if ($_ =~ /^\d/) {
+        if ($_ =~ /^\d+\t/) {
             my @items = split /\t/, $_;
             $form[$sent_count][$f][$items[0]-1] = $items[1];
             $tag[$sent_count][$f][$items[0]-1] = $items[3];
         }
-        else {
+        elsif ($_ =~ /^\s*$/) {
             $sent_count++;
         }
     }
@@ -32,10 +32,6 @@ foreach my $f (0, 1) {
 }
 
 foreach my $s (0 .. $#form) {
-    print STDERR join " ", @{$form[$s][0]};
-    print STDERR "\n";
-    print STDERR join " ", @{$form[$s][1]};
-    print STDERR "\n";
     my @alignment;
     my %candidate_scores;
     foreach my $w0 (0 .. $#{$form[$s][0]}) {
@@ -91,5 +87,4 @@ foreach my $s (0 .. $#form) {
     }
     print join " ", @alignment;
     print "\n";
-    print STDERR "\n";
 }
