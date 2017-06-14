@@ -51,7 +51,8 @@ sub get_descendants {
 
 sub get_children_and_self {
     my ($s, $w, $ch) = @_;
-    my @descendants = ($w);
+    # my @descendants = ($w);
+    my @descendants = ();
     if (defined $ch->[$s][$w]) {
         foreach my $c (@{$ch->[$s][$w]}) {
             push @descendants, $c;
@@ -119,6 +120,7 @@ foreach my $s (0 .. $sent_num - 1) {
         # my @ref_w = get_descendants($s, $w, \@children);
         my @ref_w = get_children_and_self($s, $w, \@children);
         my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
+        next if @ref_subtree == 0;
 
         # $aligned_root always defined for uni-src alignment
         my @tgt_subtree = ("");
