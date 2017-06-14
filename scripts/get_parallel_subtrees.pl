@@ -108,7 +108,7 @@ foreach my $s (0 .. $sent_num - 1) {
     print join(" ", @{$tgt_words[$s]});
     print "\n";
     # then print interesting subparts
-    foreach my $w (0 .. $#{$ref_words[$s]}) {
+    #foreach my $w (0 .. $#{$ref_words[$s]}) {
         # my $w = 0; {
         #my @tgt_w;
         #my @ref_w;
@@ -119,9 +119,18 @@ foreach my $s (0 .. $sent_num - 1) {
         #    }
         #}
 
-        my $aligned_root = $alignment[$s][$w];
+    foreach my $W (get_children_and_self($s, 0, \@children)) { # root children
+    foreach my $w (get_children_and_self($s, $W, \@children)) { # root grand-children
+
+
+        # my $aligned_root = $alignment[$s][$w];
         my @ref_w = get_descendants($s, $w, \@children);
         # my @ref_w = get_children_and_self($s, $w, \@children);
+        #{
+        #    my $span_start = min @ref_w;
+        #    my $span_end = max @ref_w;
+        #    @ref_w = ($span_start..$span_end);
+        #}
         my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
         #next if @ref_subtree <= 1;
 
@@ -156,5 +165,6 @@ foreach my $s (0 .. $sent_num - 1) {
         print "\t";
         print join(" ", @tgt_subtree);
         print "\n";
+    }
     }
 }
