@@ -111,6 +111,7 @@ print STDERR "Translation sentences: $sent_num\n";
 foreach my $s (0 .. $sent_num - 1) {
     # first print the whole sentences 
     my $weight = scalar(@{$ref_words[$s]}) + scalar(@{$tgt_words[$s]});
+    $weight *= 2;
     # my $weight = 1;
     print "$s\t$weight\t";
     print join(" ", @{$ref_words[$s]});
@@ -129,8 +130,24 @@ foreach my $s (0 .. $sent_num - 1) {
         #    }
         #}
 
+    {
+        # root children
+        my @ref_w = get_children($s, 0, \@children);
+        my @tgt_w = get_children($s, 0, \@trans_children);
+        my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
+        my @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
+        
+        my $weight = scalar(@ref_subtree) + scalar(@tgt_subtree);
+        # my $weight = 0.1;
+        print "$s\t$weight\t";
+        print join(" ", @ref_subtree);
+        print "\t";
+        print join(" ", @tgt_subtree);
+        print "\n";
+    }
+
     foreach my $W (get_children($s, 0, \@children)) { # root children
-    foreach my $w (get_children_and_self($s, $W, \@children)) { # root grand-children
+    foreach my $w (get_children($s, $W, \@children)) { # root grand-children
 
 
         # my $aligned_root = $alignment[$s][$w];
@@ -141,8 +158,6 @@ foreach my $s (0 .. $sent_num - 1) {
             my $span_end = max @ref_w;
             @ref_w = ($span_start..$span_end);
         }
-        my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
-        #next if @ref_subtree <= 1;
 
         my @tgt_w;
         foreach my $r (@ref_w) {
@@ -157,6 +172,15 @@ foreach my $s (0 .. $sent_num - 1) {
         } else {
             @tgt_w = (0);
         }
+        
+        # add subroot
+        #push @ref_w, $W;
+        #if (defined $alignment[$s][$W]) {
+        #    push @tgt_w, $alignment[$s][$W];
+        #}
+
+        my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
+        #next if @ref_subtree <= 1;
         my @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
         
 
