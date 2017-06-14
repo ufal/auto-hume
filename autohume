@@ -11,11 +11,20 @@ UDPIPE_DIR=~rosa/himl/autohume/udpipe
 UDPIPE="$UDPIPE_DIR/udpipe --tag --parse --input=horizontal $UDPIPE_DIR/models/$LANGUAGE.udpipe"
 
 # tag and parse the reference
-cat $REFERENCE   | $UDPIPE | grep -v '^#' > $NAME/reference.conllu
-cat $TRANSLATION | $UDPIPE | grep -v '^#' > $NAME/translation.conllu
+if [ ! -s $NAME/reference.conllu ]
+then
+    cat $REFERENCE   | $UDPIPE | grep -v '^#' > $NAME/reference.conllu
+fi
+if [ ! -s $NAME/translation.conllu ]
+then
+    cat $TRANSLATION | $UDPIPE | grep -v '^#' > $NAME/translation.conllu
+fi
 
 # align the translation and the reference
-scripts/monolingual_alignment.pl $NAME/reference.conllu $NAME/translation.conllu > $NAME/alignment
+if [ ! -s $NAME/alignment ]
+then
+    scripts/monolingual_alignment.pl $NAME/reference.conllu $NAME/translation.conllu > $NAME/alignment
+fi
 
 # generate aligned subtrees
 scripts/get_parallel_subtrees.pl --ref-trees $NAME/reference.conllu --alignment $NAME/alignment --translation $TRANSLATION > $NAME/parallel_subtrees
