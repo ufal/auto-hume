@@ -50,10 +50,10 @@ sub get_descendants {
 }
 
 sub get_children_and_self {
-    my ($s, $w) = @_;
+    my ($s, $w, $ch) = @_;
     my @descendants = ($w);
-    if (defined $children[$s][$w]) {
-        foreach my $c (@{$children[$s][$w]}) {
+    if (defined $ch->[$s][$w]) {
+        foreach my $c (@{$ch->[$s][$w]}) {
             push @descendants, $c;
         }
     }
@@ -96,28 +96,38 @@ while(<TRANSLATION>) {
 print STDERR "Translation sentences: $sent_num\n";
 
 foreach my $s (0 .. $sent_num - 1) {
+    # first print the whole sentences 
+    my $weight = scalar(@{$ref_words[$s]}) + scalar(@{$tgt_words[$s]});
+    print "$s\t$weight\t";
+    print join(" ", @{$ref_words[$s]});
+    print "\t";
+    print join(" ", @{$tgt_words[$s]});
+    print "\n";
+    # then print interesting subparts
     foreach my $w (0 .. $#{$ref_words[$s]}) {
         # my $w = 0; {
-        my @tgt_w;
-        my @ref_w;
-        foreach my $d (get_descendants($s, $w, \@children)) {
-            if (defined $alignment[$s][$d]) {
-                push @ref_w, $d;
-                push @tgt_w, $alignment[$s][$d];
-            }
-        }
+        #my @tgt_w;
+        #my @ref_w;
+        #foreach my $d (get_descendants($s, $w, \@children)) {
+        #    if (defined $alignment[$s][$d]) {
+        #        push @ref_w, $d;
+        #        push @tgt_w, $alignment[$s][$d];
+        #    }
+        #}
 
         my $aligned_root = $alignment[$s][$w];
-        unless (defined $aligned_root) {
-            # TODO this may still miss some
-            #next;
-        }
-        #my @ref_w = get_descendants($s, $w, \@children);
-        #my @tgt_w = get_descendants($s, $aligned_root, \@trans_children);
-
+        # my @ref_w = get_descendants($s, $w, \@children);
+        my @ref_w = get_children_and_self($s, $w, \@children);
         my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
-        my @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
-        # my @tgt_subtree = @{$tgt_words[$s]};
+
+        # $aligned_root always defined for uni-src alignment
+        my @tgt_subtree = ("");
+        if (defined $aligned_root) {
+            # my @tgt_w = get_descendants($s, $aligned_root, \@trans_children);
+            my @tgt_w = get_children_and_self($s, $aligned_root, \@trans_children);
+            @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
+        }
+
         my $weight = scalar(@ref_subtree) + scalar(@tgt_subtree);
         print "$s\t$weight\t";
         print join(" ", @ref_subtree);
