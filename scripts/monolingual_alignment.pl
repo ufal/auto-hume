@@ -12,7 +12,7 @@ binmode STDIN, ":utf8";
 my @form;
 my @tag;
 
-my $type = 'union';
+my $type = 'uni-src';
 
 foreach my $f (0, 1) {
     open (CONLL, "<:utf8", $ARGV[$f]) or die;
@@ -76,6 +76,21 @@ foreach my $s (0 .. $#form) {
             my $best_ali = "";
             my $best_score = 0;
             foreach my $w0 (0 .. $#{$form[$s][0]}) {
+                if ($candidate_scores{"$w0-$w1"} > $best_score) {
+                    $best_ali = "$w0-$w1";
+                    $best_score = $candidate_scores{"$w0-$w1"};
+                }
+            }
+            $aligned{$best_ali} = 1;
+        }
+        @alignment = keys %aligned;
+    }
+    elsif ($type eq 'uni-src') {
+        my %aligned;
+        foreach my $w0 (0 .. $#{$form[$s][0]}) {
+            my $best_ali = "";
+            my $best_score = 0;
+            foreach my $w1 (0 .. $#{$form[$s][1]}) {
                 if ($candidate_scores{"$w0-$w1"} > $best_score) {
                     $best_ali = "$w0-$w1";
                     $best_score = $candidate_scores{"$w0-$w1"};
