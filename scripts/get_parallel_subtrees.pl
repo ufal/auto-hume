@@ -98,7 +98,15 @@ print STDERR "Translation sentences: $sent_num\n";
 foreach my $s (0 .. $sent_num - 1) {
     foreach my $w (0 .. $#{$ref_words[$s]}) {
         # my $w = 0; {
-        # foreach my $d (get_children_and_self($s, $w)) {
+        #my @tgt_w;
+        #my @ref_w;
+        #foreach my $d (get_descendants($s, $w, \@children)) {
+        #    if (defined $alignment[$s][$d]) {
+        #        push @ref_w, $d;
+        #        push @tgt_w, $alignment[$s][$d];
+        #    }
+        #}
+
         my $aligned_root = $alignment[$s][$w];
         unless (defined $aligned_root) {
             # TODO this may still miss some
@@ -106,6 +114,7 @@ foreach my $s (0 .. $sent_num - 1) {
         }
         my @ref_w = get_descendants($s, $w, \@children);
         my @tgt_w = get_descendants($s, $aligned_root, \@trans_children);
+
         my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
         my @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
         # my @tgt_subtree = @{$tgt_words[$s]};
