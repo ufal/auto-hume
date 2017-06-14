@@ -48,6 +48,17 @@ sub get_descendants {
     return @descendants;
 }
 
+sub get_children_and_self {
+    my ($s, $w) = @_;
+    my @descendants = ($w);
+    if (defined $children[$s][$w]) {
+        foreach my $c (@{$children[$s][$w]}) {
+            push @descendants, $c;
+        }
+    }
+    return @descendants;
+}
+
 $sent_num = 0;
 my @alignment;
 open(ALI, "<:utf8", $ALIGNMENT_FILENAME) or die;
@@ -65,20 +76,34 @@ print STDERR "Alignment sentences: $sent_num\n";
 
 $sent_num = 0;
 my @tgt_words;
+my @trans_children;
 open(TRANSLATION, "<:utf8", $TRANSLATION_FILENAME) or die;
 while(<TRANSLATION>) {
     chomp;
-    my @words = split(/\s/, $_);
-    unshift @words, "";
-    $tgt_words[$sent_num] = \@words;
-    $sent_num++;
+    if ($_ =~ /^\d/) {
+        my @items = split(/\t/, $_);
+        push @{$trans_children[$sent_num][$items[6]]}, $items[0];
+        $tgt_words[$sent_num][$items[0]] = $items[1];
+    }
+    else {
+        $sent_num++;
+    }
 }
+
 print STDERR "Translation sentences: $sent_num\n";
 
 foreach my $s (0 .. $sent_num - 1) {
     foreach my $w (0 .. $#{$ref_words[$s]}) {
+        #my $w = 0;
+        #{
         my @tgt_w;
         my @ref_w;
+        # foreach my $d (get_children_and_self($s, $w)) {
+        #my $aligned_root = $alignment[$s][$w];
+        #unless (defined $aligned_root) {
+        #continue;
+            #}
+        #my @ref_w = get_descendants($s, $w);
         foreach my $d (get_descendants($s, $w)) {
             if (defined $alignment[$s][$d]) {
                 push @ref_w, $d;
@@ -87,6 +112,7 @@ foreach my $s (0 .. $sent_num - 1) {
         }
         my @ref_subtree = map{$ref_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @ref_w);
         my @tgt_subtree = map{$tgt_words[$s][$_]} List::Uniq::uniq(sort {$a <=> $b} @tgt_w);
+        # my @tgt_subtree = @{$tgt_words[$s]};
         my $weight = scalar(@ref_subtree) + scalar(@tgt_subtree);
         print "$s\t$weight\t";
         print join(" ", @ref_subtree);

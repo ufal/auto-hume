@@ -27,7 +27,8 @@ then
 fi
 
 # generate aligned subtrees
-scripts/get_parallel_subtrees.pl --ref-trees $NAME/reference.conllu --alignment $NAME/alignment --translation $TRANSLATION > $NAME/parallel_subtrees
+# scripts/get_parallel_subtrees.pl --ref-trees $NAME/reference.conllu --alignment $NAME/alignment --translation $TRANSLATION > $NAME/parallel_subtrees
+scripts/get_parallel_subtrees.pl --ref-trees $NAME/reference.conllu --alignment $NAME/alignment --translation $NAME/translation.conllu > $NAME/parallel_subtrees
 
 cat $NAME/parallel_subtrees | cut -f3 > $NAME/ref_subtrees
 cat $NAME/parallel_subtrees | cut -f4 > $NAME/trans_subtrees
