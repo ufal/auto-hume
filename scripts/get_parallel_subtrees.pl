@@ -31,6 +31,7 @@ while(<CONLLU>) {
         $ref_words[$sent_num][$items[0]] = $items[1];
     }
     else {
+        $ref_words[$sent_num][0] = "";
         $sent_num++;
     }
 }
@@ -69,6 +70,7 @@ while(<ALI>) {
         my ($ref, $tgt) = split(/-/, $pair);
         $alignment[$sent_num][$ref + 1] = $tgt + 1;
     }
+    $alignment[$sent_num][0] = 0;
     $sent_num++;
 }
 close ALI;
@@ -86,6 +88,7 @@ while(<TRANSLATION>) {
         $tgt_words[$sent_num][$items[0]] = $items[1];
     }
     else {
+        $tgt_words[$sent_num][0] = "";
         $sent_num++;
     }
 }
@@ -94,8 +97,7 @@ print STDERR "Translation sentences: $sent_num\n";
 
 foreach my $s (0 .. $sent_num - 1) {
     foreach my $w (0 .. $#{$ref_words[$s]}) {
-        #my $w = 0;
-        #{
+        # my $w = 0; {
         # foreach my $d (get_children_and_self($s, $w)) {
         my $aligned_root = $alignment[$s][$w];
         unless (defined $aligned_root) {
