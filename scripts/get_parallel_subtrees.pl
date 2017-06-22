@@ -110,13 +110,23 @@ print STDERR "Translation sentences: $sent_num\n";
 
 foreach my $s (0 .. $sent_num - 1) {
     # first print the whole sentences 
-    my $weight = scalar(@{$ref_words[$s]}) + scalar(@{$tgt_words[$s]});
+    my $weight = 0;
+    if (defined $ref_words[$s]) {
+       $weight += scalar(@{$ref_words[$s]});
+    }
+    if (defined $tgt_words[$s]) {
+       $weight += scalar(@{$tgt_words[$s]});
+    }
     $weight *= 2;
     # my $weight = 1;
     print "$s\t$weight\t";
-    print join(" ", @{$ref_words[$s]});
+    if (defined $ref_words[$s]) {
+        print join(" ", @{$ref_words[$s]});
+    }
     print "\t";
-    print join(" ", @{$tgt_words[$s]});
+    if (defined $tgt_words[$s]) {
+        print join(" ", @{$tgt_words[$s]});
+    }
     print "\n";
     # then print interesting subparts
     #foreach my $w (0 .. $#{$ref_words[$s]}) {
