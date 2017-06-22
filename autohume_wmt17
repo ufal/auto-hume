@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -o xtrace
+
+DIR=autohume_predictions/wmt17
+DATA=data/wmt17-metrics-task/wmt17-submitted-data/txt
+mkdir -p $DIR
+# for l in cs de fi lv ru tr zh; do
+for l in cs de ; do
+    # from EN
+    r=$DATA/references/newstest2017-en${l}-ref.$l
+    for s in $DATA/system-outputs/newstest2017/en-$l/*; do
+        SYS=${s#*newstest2017.}
+        autohume $r $s $l $DIR/$SYS
+        #paste autohume_predictions/himl15/$l/autohume.score data/himl2015/himl2015.en-$l.ucca | scripts/pearson.pl
+    done
+    # to EN
+    r=$DATA/references/newstest2017-${l}en-ref.en
+    for s in $DATA/system-outputs/newstest2017/$l-en/*; do
+        SYS=${s#*newstest2017.}
+        autohume $r $s en $DIR/$SYS
+        #paste autohume_predictions/himl15/$l/autohume.score data/himl2015/himl2015.en-$l.ucca | scripts/pearson.pl
+    done
+done
+
