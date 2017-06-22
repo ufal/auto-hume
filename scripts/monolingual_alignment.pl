@@ -39,7 +39,7 @@ foreach my $s (0 .. $#form) {
             my $jarowinkler = Text::JaroWinkler::strcmp95( lc($form[$s][0][$w0]), lc($form[$s][1][$w1]), 20 ) - 0.6;
             $jarowinkler = 0 if $jarowinkler < 0;
             my $equal_tags = $tag[$s][0][$w0] eq $tag[$s][1][$w1] ? 1 : 0;
-            my $relpos = 1 - abs($w0 / $#{$form[$s][0]} - $w1 / $#{$form[$s][1]});
+            my $relpos = 1 - abs($w0 / (1+$#{$form[$s][0]}) - $w1 / (1+$#{$form[$s][1]}));
             $candidate_scores{"$w0-$w1"} = $jarowinkler * 8 + $equal_tags * 3 + $relpos * 3;
         }
     }

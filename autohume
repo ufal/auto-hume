@@ -10,6 +10,8 @@ NAME=$4
 UDPIPE_DIR=~rosa/himl/autohume/udpipe
 UDPIPE="$UDPIPE_DIR/udpipe --tag --parse --input=horizontal $UDPIPE_DIR/models/$LANGUAGE.udpipe"
 
+mkdir -p $NAME
+
 # tag and parse the reference
 if [ ! -s $NAME/reference.conllu ]
 then
