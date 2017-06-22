@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -o xtrace
+
+l=$1
+DIR=autohume_predictions/himl17a
+DATA=data/wmt17-metrics-task/himltest17/txt
+mkdir -p $DIR
+    # from EN
+    r=$DATA/references/himltest2017a-en$l-ref.$l
+    for s in $DATA/system-outputs/himltest2017a/en-$l/*; do
+        temp=${s#*himltest2017a.}
+        SYS=${temp%.*}
+        autohume $r $s $l $DIR/$temp
+        ./format_output.pl TreeAggreg en-$l himltest2017a $SYS $DIR/$temp/autohume.score ensemble https://github.com/ufal/auto-hume/tree/rudolf > $DIR/$temp/autohume.formatted
+        #paste autohume_predictions/himl15/$l/autohume.score data/himl2015/himl2015.en-$l.ucca | scripts/pearson.pl
+    done
+
